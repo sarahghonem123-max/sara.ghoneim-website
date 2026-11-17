@@ -1,0 +1,268 @@
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"><title>معركة القواعد 3D</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;font-family:Cairo,Tahoma,sans-serif}body{margin:0;overflow:hidden;background:#000;color:#fff;user-select:none;touch-action:none}
+canvas{display:block}.ov{position:fixed;inset:0;background:radial-gradient(#1b3a2acc,#0a1410f2);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;z-index:9}
+.ov h1{font-size:clamp(34px,7vw,64px);margin:0;color:#ffd24a;text-shadow:0 4px #0006}.ov p{max-width:640px;line-height:1.9}
+button{background:#ffd24a;color:#222;border:0;border-radius:12px;font-weight:900;font-size:20px;padding:10px 28px;margin:6px;cursor:pointer}
+.hide{display:none!important}#hud{position:fixed;inset:0;pointer-events:none;z-index:5}
+#cross{position:absolute;left:50%;top:50%;width:26px;height:26px;margin:-13px;border:2px solid #fff;border-radius:50%;opacity:.85}#cross.r{border-color:#f33;background:#f333}
+#cross:after{content:"";position:absolute;left:50%;top:50%;width:4px;height:4px;margin:-2px;background:#fff;border-radius:50%}
+#qc{position:absolute;top:10px;left:50%;transform:translateX(-50%);background:#000b;border:2px solid #ffd24a;border-radius:14px;padding:8px 22px;font-size:clamp(16px,2.6vw,26px);font-weight:700;text-align:center;min-width:260px}
+#bar{height:6px;background:#ffd24a;margin-top:6px;border-radius:4px}#msg{position:absolute;top:30%;width:100%;text-align:center;font-size:clamp(18px,3vw,30px);font-weight:900;text-shadow:0 2px 6px #000}
+#st{position:absolute;bottom:10px;right:14px;font-size:20px;font-weight:700;text-shadow:0 2px 4px #000}#st b{display:inline-block;height:10px;border-radius:5px;vertical-align:middle}
+#cr{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);font-size:13px;opacity:.75}#am{position:absolute;bottom:10px;left:14px;font-size:30px;font-weight:900}
+#dm{position:absolute;inset:0;box-shadow:inset 0 0 120px 40px #f00;opacity:0;transition:opacity .4s}
+#tc{position:fixed;inset:0;z-index:6}#tc div{position:absolute;border-radius:50%;background:#fff3;border:2px solid #fff8;display:flex;align-items:center;justify-content:center;font-weight:900}
+</style></head><body>
+<div id="hud" class="hide"><div id="dm"></div><div id="cross"></div><div id="qc"><span id="qt"></span><div id="bar"></div></div><div id="msg"></div>
+<div id="st">❤ <b id="hb" style="background:#e33;width:120px"></b> 🛡 <b id="ab" style="background:#39f;width:60px"></b><br><span id="sc"></span></div><div id="am"></div><div id="cr">تصميم وإعداد المعلمة/ سارة غنيم</div></div>
+<div id="tc" class="hide"><div id="jy" style="left:20px;bottom:30px;width:120px;height:120px"></div><div id="fb" style="right:20px;bottom:40px;width:90px;height:90px;font-size:18px">🔫 إطلاق</div><div id="jb" style="right:20px;bottom:150px;width:60px;height:60px">⬆</div><div id="rb" style="right:100px;bottom:150px;width:60px;height:60px">↻</div><div id="wb" style="right:170px;bottom:150px;width:60px;height:60px">🔄</div><div id="ab2" style="right:120px;bottom:50px;width:70px;height:70px;font-size:26px">🎯</div><div id="pk" class="hide" style="left:50%;bottom:30%;transform:translateX(-50%);width:140px;height:60px;border-radius:30px;font-size:20px;background:#ffd24acc;color:#222">✋ اختيار</div></div>
+<div id="scope" class="hide" style="position:fixed;inset:0;z-index:4;pointer-events:none;background:linear-gradient(#000a,#000a) center/1px 58% no-repeat,linear-gradient(#000a,#000a) center/58vmin 1px no-repeat,radial-gradient(circle at 50% 50%,transparent 29vmin,#000 29.5vmin)"></div>
+<div id="menu" class="ov"><h1>⚔️ معركة القواعد 3D</h1><p>أنزِل بالمظلة، اقضِ على الأعداء، ثم أجب عن سؤال النحو بإصابة الهدف الصحيح.<br>WASD حركة · الفأرة تصويب · زر يسار إطلاق · زر يمين تصويب دقيق · Shift ركض · Space قفز · C انحناء · R تلقيم · P إيقاف<br>كل إجابة صحيحة: ⭐ — نصف الإجابات الصحيحة على الأقل لإنهاء المرحلة</p><button id="go">ابدأ المعركة ▶</button><button id="tcm" style="font-size:14px">وضع المعلم</button><div id="sel" style="max-height:38vh;overflow:auto"></div><div style="opacity:.8">تصميم وإعداد المعلمة/ سارة غنيم</div></div>
+<div id="rule" class="ov hide"><h1 id="rh" style="font-size:clamp(26px,5vw,40px)"></h1><p id="rl" style="font-size:18px"></p><button id="rgo">ابدأ المعركة ▶</button></div>
+<div id="pause" class="ov hide"><h1>إيقاف مؤقت</h1><button id="res">متابعة</button><button id="rs">إعادة المرحلة</button><button id="snd">الصوت: يعمل</button></div>
+<div id="end" class="ov hide"><h1 id="et"></h1><p id="ep"></p><button id="nx" class="hide">المرحلة التالية ▶</button><button id="rt">إعادة المرحلة</button><button onclick="location.reload()">القائمة</button><div style="opacity:.8">تصميم وإعداد المعلمة/ سارة غنيم</div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const A=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]),$=i=>document.getElementById(i),R=Math.random;
+// المرحلة ١: الاسم والفعل والحرف (الصحيحة أولاً)
+const Q1=[["«طالبٌ» كلمة من نوع:",["اسم","فعل","حرف"],"«طالب» يدل على إنسان، فهو اسم."],["«يكتبُ» كلمة من نوع:",["فعل","اسم","حرف"],"«يكتب» يدل على حدث مرتبط بالزمن، فهو فعل مضارع."],["«في» كلمة من نوع:",["حرف","اسم","فعل"],"«في» حرف جر لا يظهر معناه إلا مع غيره."],["«مدرسةٌ» كلمة من نوع:",["اسم","فعل","حرف"],"«مدرسة» اسم مكان."],["«ذهبَ» كلمة من نوع:",["فعل","اسم","حرف"],"«ذهب» فعل ماضٍ دلّ على حدث وقع وانتهى."],["«إلى» كلمة من نوع:",["حرف","اسم","فعل"],"«إلى» حرف جر."],["أيّ الكلمات التالية اسم؟",["الكتابُ","قرأَ","هل"],"«الكتاب» اسم يقبل «أل» التعريف."],["أيّ الكلمات التالية فعل؟",["يلعبُ","الولدُ","على"],"«يلعب» فعل مضارع يدل على حدث وزمن."],["أيّ الكلمات التالية حرف؟",["مِن","البيتُ","جلسَ"],"«من» حرف جر."],["«سافرَ» كلمة من نوع:",["فعل","اسم","حرف"],"«سافر» فعل ماضٍ."]];
+let QS=Q1;
+let cs=0,LV=1,TL=22,ES=2.2;const PQ=t=>t.trim().split('\n').map(l=>{const a=l.split('|');return[a[0],[a[1],a[2],a[3]],a[4]]});
+const S2=PQ(`أيّ الجمل التالية جملة اسمية؟|الجوُّ جميلٌ|ذهبَ الولدُ|يكتبُ الطالبُ|الجملة الاسمية تبدأ باسم.
+أيّ الجمل التالية جملة فعلية؟|رسمَتْ سارةُ لوحةً|السماءُ صافيةٌ|العلمُ نورٌ|الجملة الفعلية تبدأ بفعل.
+«الحديقةُ واسعةٌ» جملة:|اسمية|فعلية|شبه جملة|بدأت باسم هو «الحديقة».
+«يقرأُ أحمدُ الكتابَ» جملة:|فعلية|اسمية|شبه جملة|بدأت بالفعل «يقرأ».`);
+const S3=PQ(`أيّ الأفعال التالية فعل ماضٍ؟|كتبَ|يكتبُ|اكتبْ|«كتب» دل على حدث انتهى.
+الفعل الماضي «لعبَ» يُبنى على:|الفتح|الضم|السكون|الماضي المجرد من الضمائر يبنى على الفتح.
+الفعل الماضي «كتبْتُ» يُبنى على:|السكون|الفتح|الضم|يبنى الماضي على السكون عند اتصاله بتاء الفاعل.
+الفعل الماضي «كتبوا» يُبنى على:|الضم|الفتح|السكون|واو الجماعة تجعل الماضي مبنيًّا على الضم.`);
+const S4=PQ(`أيّ الأفعال التالية مضارع؟|يذهبُ|ذهبَ|اذهبْ|المضارع يبدأ بأحد حروف «أنيت» ويدل على الحال أو الاستقبال.
+حرف المضارعة في «نكتبُ»:|النون|الكاف|التاء|بدأ بالنون وهي من أحرف «أنيت».
+«الولدُ يلعبُ» الفعل «يلعبُ» مرفوع بـ:|الضمة|الفتحة|السكون|لم يسبقه ناصب ولا جازم فيرفع بالضمة.
+«لن يذهبَ» علامة نصب الفعل:|الفتحة|الضمة|السكون|«لن» حرف نصب فينصب المضارع بالفتحة.`);
+const S5=PQ(`أيّ الأفعال التالية فعل أمر؟|اكتبْ|كتبَ|يكتبُ|الأمر طلب حصول الفعل.
+فعل الأمر «اذهبْ» يُبنى على:|السكون|الفتح|الضم|الأمر صحيح الآخر يبنى على السكون.
+فعل الأمر «اكتبوا» يُبنى على:|حذف النون|السكون|الفتح|لأن مضارعه من الأفعال الخمسة.
+الأمر من الفعل «يقرأُ» للمفرد:|اقرأْ|قرأَ|تقرأُ|نحذف حرف المضارعة ونسكّن الآخر.`);
+const S6=PQ(`المبتدأ في «الصدقُ منجاةٌ»:|الصدقُ|منجاةٌ|لا يوجد|المبتدأ اسم مرفوع في أول الجملة الاسمية.
+علامة رفع المبتدأ في «العلمُ نورٌ»:|الضمة|الفتحة|الكسرة|اسم مفرد مرفوع بالضمة.
+علامة رفع المبتدأ «الطالبانِ»:|الألف|الضمة|الياء|المثنى يرفع بالألف.
+علامة رفع «المعلمونَ» في «المعلمونَ مخلصونَ»:|الواو|الضمة|الألف|جمع المذكر السالم يرفع بالواو.`);
+const S7=PQ(`الخبر في «السماءُ صافيةٌ»:|صافيةٌ|السماءُ|لا يوجد|الخبر ما يكمل معنى المبتدأ.
+«الطالبُ يكتبُ» نوع الخبر:|جملة فعلية|مفرد|شبه جملة|الخبر «يكتب» فعل وفاعله مستتر.
+«الكتابُ على المكتبِ» نوع الخبر:|شبه جملة|مفرد|جملة اسمية|الخبر جار ومجرور.
+علامة رفع الخبر في «الجوُّ جميلٌ»:|الضمة|الفتحة|الكسرة|خبر مفرد مرفوع بالضمة.`);
+const S8=PQ(`الفاعل في «كتبَ الطالبُ الدرسَ»:|الطالبُ|الدرسَ|كتبَ|الفاعل من قام بالفعل.
+حكم الفاعل الإعرابي:|مرفوع|منصوب|مجرور|الفاعل دائمًا مرفوع.
+«نجحَ المجتهدونَ» علامة رفع الفاعل:|الواو|الضمة|الألف|جمع المذكر السالم يرفع بالواو.
+الفاعل في «ذهبتْ فاطمةُ إلى المدرسةِ»:|فاطمةُ|المدرسةِ|ذهبتْ|فاطمة هي من قامت بالذهاب.`);
+const S9=PQ(`تنصب «إنّ» وأخواتها:|المبتدأ ويسمى اسمها|الخبر|الفاعل|تنصب المبتدأ وترفع الخبر.
+«إنّ العلمَ نورٌ» اسم إنّ:|العلمَ|نورٌ|إنّ|اسم إن منصوب بالفتحة.
+«ليتَ الشبابَ يعودُ» الحرف الناسخ:|ليتَ|الشبابَ|يعودُ|«ليت» تفيد التمني.
+«لعلَّ» تفيد:|الترجي|التمني|الاستدراك|«لعل» للرجاء والترجي.`);
+const S10=PQ(`ترفع «كان» وأخواتها:|المبتدأ ويسمى اسمها|الخبر|المفعول|ترفع المبتدأ وتنصب الخبر.
+«كانَ الجوُّ جميلًا» خبر كان:|جميلًا|الجوُّ|كانَ|خبر كان منصوب بالفتحة.
+أيّ الأفعال التالية من أخوات كان؟|أصبحَ|ذهبَ|كتبَ|«أصبح» فعل ناسخ.
+«ليسَ الكسولُ ناجحًا» اسم ليس:|الكسولُ|ناجحًا|ليسَ|اسم ليس مرفوع بالضمة.`);
+const S11=PQ(`المفعول به في «قرأَ الطالبُ الكتابَ»:|الكتابَ|الطالبُ|قرأَ|وقع عليه فعل القراءة.
+حكم المفعول به:|منصوب|مرفوع|مجرور|المفعول به دائمًا منصوب.
+«رأيتُ المعلمينَ» علامة نصب المفعول:|الياء|الفتحة|الألف|جمع المذكر السالم ينصب بالياء.
+المفعول به في «يحبُّ الوطنَ أبناؤهُ»:|الوطنَ|أبناؤهُ|يحبُّ|الوطن وقع عليه الحب.`);
+const S12=PQ(`المفعول المطلق في «ركضَ العدّاءُ ركضًا»:|ركضًا|العدّاءُ|ركضَ|مصدر منصوب يؤكد الفعل.
+حكم المفعول المطلق:|منصوب|مرفوع|مجرور|المفعول المطلق منصوب.
+«فرحتُ فرحَ الأطفالِ» نوعه:|مبيّن للنوع|مؤكّد|مبيّن للعدد|أضيف إلى «الأطفال» ليبين نوع الفرح.
+«قفزتُ قفزتينِ» نوعه:|مبيّن للعدد|مؤكّد|مبيّن للنوع|«قفزتين» يبين عدد المرات.`);
+const S13=PQ(`المفعول لأجله في «وقفتُ احترامًا للعلمِ»:|احترامًا|وقفتُ|العلمِ|يبين سبب الوقوف.
+المفعول لأجله يجيب عن:|لماذا؟|متى؟|أين؟|يبين سبب حدوث الفعل.
+«سافرَ أحمدُ طلبًا للعلمِ» المفعول لأجله:|طلبًا|سافرَ|العلمِ|«طلبًا» سبب السفر.
+حكم المفعول لأجله:|منصوب|مرفوع|مجرور|مصدر منصوب.`);
+const S14=PQ(`المفعول فيه في «سافرتُ صباحًا»:|صباحًا|سافرتُ|لا يوجد|«صباحًا» ظرف زمان.
+«جلستُ أمامَ المنزلِ» «أمامَ» ظرف:|مكان|زمان|حال|«أمام» تدل على المكان.
+المفعول فيه يجيب عن:|متى؟ وأين؟|من؟|لماذا؟|يبين زمان الفعل أو مكانه.
+«انتظرتُ يومًا كاملًا» «يومًا» ظرف:|زمان|مكان|حال|يدل على الزمن.`);
+const S15=PQ(`الحال في «جاءَ الطالبُ مسرعًا»:|مسرعًا|الطالبُ|جاءَ|«مسرعًا» يبين هيئة الطالب.
+الحال يجيب عن:|كيف؟|لماذا؟|كم؟|الحال يبين هيئة صاحبه.
+حكم الحال:|منصوب|مرفوع|مجرور|الحال منصوب.
+صاحب الحال في «عادَ الجنديُّ منتصرًا»:|الجنديُّ|منتصرًا|عادَ|«منتصرًا» وصف لهيئة الجندي.`);
+const S16=PQ(`التمييز في «اشتريتُ عشرينَ كتابًا»:|كتابًا|عشرينَ|اشتريتُ|يزيل الإبهام عن العدد.
+حكم التمييز:|منصوب|مرفوع|مجرور|التمييز منصوب.
+«طابَ الطالبُ خُلُقًا» التمييز:|خُلُقًا|الطالبُ|طابَ|يزيل الإبهام عن النسبة.
+«عندي ثلاثونَ طالبًا» التمييز:|طالبًا|ثلاثونَ|عندي|«طالبًا» يميز العدد.`);
+const S17=PQ(`النعت في «جاءَ طالبٌ مجتهدٌ»:|مجتهدٌ|طالبٌ|جاءَ|«مجتهد» يصف الطالب.
+النعت يتبع المنعوت في:|الإعراب|الجر فقط|الرفع فقط|يتبعه في الإعراب والتعريف والتنكير.
+حرف العطف في «جاءَ أحمدُ وخالدٌ»:|الواو|أحمدُ|جاءَ|الواو من حروف العطف.
+المعطوف في «قرأتُ الكتابَ ثم المجلةَ»:|المجلةَ|الكتابَ|ثم|المعطوف يتبع المعطوف عليه فيُنصب.`);
+const S18=PQ(`التوكيد في «جاءَ القومُ كلُّهمْ»:|كلُّهمْ|القومُ|جاءَ|«كل» توكيد معنوي.
+من ألفاظ التوكيد المعنوي:|نفس|ثم|لكن|نفس وعين وكل وجميع.
+البدل في «زارنا أخوكَ خالدٌ»:|خالدٌ|أخوكَ|زارنا|«خالد» بدل مطابق من «أخوك».
+البدل يتبع المبدل منه في:|الإعراب|الحرف فقط|البناء|البدل يتبع متبوعه في إعرابه.`);
+const S19=PQ(`من حروف الجر:|في|ثم|لم|«في» حرف جر.
+الاسم بعد حرف الجر يكون:|مجرورًا|مرفوعًا|منصوبًا|حرف الجر يجر ما بعده.
+«ذهبتُ إلى المدرسةِ» علامة جر «المدرسةِ»:|الكسرة|الفتحة|الضمة|اسم مفرد مجرور بالكسرة.
+«مررتُ بالمعلمينَ» علامة جر «المعلمينَ»:|الياء|الكسرة|الألف|جمع المذكر السالم يجر بالياء.`);
+const S20=PQ(`المضاف إليه في «كتابُ الطالبِ»:|الطالبِ|كتابُ|لا يوجد|الاسم الثاني مجرور.
+حكم المضاف إليه:|مجرور|مرفوع|منصوب|المضاف إليه دائمًا مجرور.
+المضاف في «بابُ البيتِ»:|بابُ|البيتِ|كلاهما|الاسم الأول هو المضاف.
+لا يدخل على المضاف:|التنوين وأل|الضمة|الفتحة|المضاف لا ينوّن ولا تدخله «أل».`);
+const STG=[[0,'الاسم والفعل والحرف',Q1],[0,'الجملة الاسمية والفعلية',S2],[1,'الفعل الماضي',S3],[1,'الفعل المضارع',S4],[1,'فعل الأمر',S5],[2,'المبتدأ',S6],[2,'الخبر',S7],[2,'الفاعل',S8],[3,'الحروف الناسخة',S9],[3,'الأفعال الناسخة',S10],[4,'المفعول به',S11],[4,'المفعول المطلق',S12],[4,'المفعول لأجله',S13],[4,'المفعول فيه',S14],[4,'الحال',S15],[4,'التمييز',S16],[5,'النعت والعطف',S17],[5,'التوكيد والبدل',S18],[5,'حروف الجر',S19],[5,'الإضافة',S20]];
+const LVN=['⛺ معسكر التدريب','🏙️ المدينة المهجورة','🏜️ الصحراء الملتهبة','🏰 القلعة الحجرية','🌲 الغابة الكثيفة','❄️ الجزيرة الثلجية'],ENV=[[0x8fc4e8,0x4f7a3a,.9,120],[0x9aa3ab,0x555a5e,.8,110],[0xe8c98a,0xd9b06a,1,130],[0xc86a3a,0x5a5248,.55,110],[0x16241b,0x1d3a22,.35,38],[0xdfeaf5,0xf2f6fa,1,130]];
+function env(){const e=ENV[LV-1];sc.background=new THREE.Color(e[0]);sc.fog=new THREE.Fog(e[0],12,e[3]);gr.material.color.setHex(e[1]);hemi.intensity=e[2];buildProps()}
+let PR={u:0,s:[]},TCH=false;try{PR=JSON.parse(localStorage.getItem('bg3dp'))||PR}catch(e){}
+function grid(){let h='',l=-1;STG.forEach((t,i)=>{if(t[0]!=l){l=t[0];h+='<div style="margin-top:8px;font-weight:900">'+LVN[l]+'</div>'}const ok=TCH||i<=PR.u;h+='<button style="font-size:14px;padding:4px 12px;'+(ok?'':'opacity:.4')+'" onclick="'+(ok?'begin('+i+')':'')+'">'+(ok?'':'🔒 ')+A(i+1)+'. '+t[1]+' '+'⭐'.repeat(PR.s[i]||0)+'</button>'});$('sel').innerHTML=h}
+
+const RL=['الاسم: ما دلّ على إنسان أو حيوان أو نبات أو جماد أو مكان (طالبٌ، قطةٌ). الفعل: ما دلّ على حدث مرتبط بزمن (كتبَ، يكتبُ). الحرف: لا يظهر معناه إلا مع غيره (في، من، إلى).',
+'الجملة الاسمية تبدأ باسم (العلمُ نورٌ). الجملة الفعلية تبدأ بفعل (كتبَ الطالبُ الدرسَ).',
+'الفعل الماضي: ما دلّ على حدث انتهى. يُبنى على الفتح (كتبَ)، وعلى السكون مع تاء الفاعل (كتبْتُ)، وعلى الضم مع واو الجماعة (كتبوا).',
+'الفعل المضارع: يبدأ بأحد حروف «أنيت» ويدل على الحال أو الاستقبال. يُرفع بالضمة، وينصب بالفتحة بعد «لن»، ويجزم بالسكون بعد «لم».',
+'فعل الأمر: طلب حصول الفعل. يُبنى على السكون (اكتبْ)، وعلى حذف النون مع الأفعال الخمسة (اكتبوا). نأخذه من المضارع بحذف حرف المضارعة.',
+'المبتدأ: اسم مرفوع في أول الجملة الاسمية (العلمُ نورٌ). يُرفع بالضمة، وبالألف في المثنى، وبالواو في جمع المذكر السالم.',
+'الخبر: ما يكمل معنى المبتدأ، وهو مرفوع. قد يكون مفردًا (الجوُّ جميلٌ) أو جملة (الطالبُ يكتبُ) أو شبه جملة (الكتابُ على المكتبِ).',
+'الفاعل: من قام بالفعل، وهو مرفوع دائمًا (كتبَ الطالبُ). علامة رفعه الضمة، أو الواو في جمع المذكر السالم.',
+'إنّ وأخواتها (إنّ، أنّ، كأنّ، لكنّ، ليتَ، لعلَّ): تنصب المبتدأ ويسمى اسمها، وترفع الخبر ويسمى خبرها (إنّ العلمَ نورٌ).',
+'كان وأخواتها (كان، أصبح، أمسى، ظلّ، بات، صار، ليس…): ترفع المبتدأ ويسمى اسمها، وتنصب الخبر ويسمى خبرها (كانَ الجوُّ جميلًا).',
+'المفعول به: اسم منصوب وقع عليه فعل الفاعل (قرأَ الطالبُ الكتابَ). ينصب بالفتحة، وبالياء في جمع المذكر السالم.',
+'المفعول المطلق: مصدر منصوب يؤكد فعله أو يبين نوعه أو عدده (ركضَ العدّاءُ ركضًا).',
+'المفعول لأجله: مصدر منصوب يبين سبب حدوث الفعل ويجيب عن «لماذا؟» (وقفتُ احترامًا للعلمِ).',
+'المفعول فيه (الظرف): اسم منصوب يبين زمان الفعل أو مكانه ويجيب عن «متى؟» و«أين؟» (سافرتُ صباحًا).',
+'الحال: وصف منصوب يبين هيئة صاحبه ويجيب عن «كيف؟» (جاءَ الطالبُ مسرعًا).',
+'التمييز: اسم نكرة منصوب يزيل الإبهام عن العدد أو النسبة (اشتريتُ عشرينَ كتابًا).',
+'النعت يتبع منعوته في الإعراب والتعريف والتنكير (طالبٌ مجتهدٌ). العطف يكون بحروف مثل الواو والفاء وثم، والمعطوف يتبع المعطوف عليه.',
+'التوكيد: تقوية المعنى بألفاظ مثل نفس وعين وكل وجميع (جاءَ القومُ كلُّهمْ). البدل: تابع يُذكر بعد المتبوع ويتبعه في إعرابه (زارنا أخوكَ خالدٌ).',
+'حروف الجر (من، إلى، عن، على، في، الباء، اللام…) تجرّ الاسم بعدها بالكسرة أو ما ينوب عنها (ذهبتُ إلى المدرسةِ).',
+'الإضافة: مضاف ومضاف إليه، والمضاف إليه مجرور دائمًا (كتابُ الطالبِ). والمضاف لا يُنوَّن ولا تدخله «أل».'];
+const MIS='<b>المهام الخمس بالترتيب:</b><br>🕵️ الجاسوس: اقنص صاحب الإجابة الصحيحة · 🛢️ البرميل: الصحيح ينفجر والخاطئ فخ · 💊 علبة الدواء: الصحيحة تعيد ٤٠ صحة والخاطئة مسمومة · 📦 صندوق الإمداد: الصحيح يمنح درعًا والخاطئ مفخّخ · 🤝 الصديق: اختر الصحيح.<br><br>أصب الهدف بالرصاص لتختاره.';
+
+const TY=['الجاسوس','البرميل','علبة الدواء','صندوق الإمداد','الصديق'];
+const rd=new THREE.WebGLRenderer({antialias:true});rd.setPixelRatio(Math.min(devicePixelRatio,2));rd.setSize(innerWidth,innerHeight);document.body.prepend(rd.domElement);
+const sc=new THREE.Scene();sc.background=new THREE.Color(0x8fc4e8);sc.fog=new THREE.Fog(0x8fc4e8,25,90);
+const cam=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,.1,200);sc.add(cam);
+const hemi=new THREE.HemisphereLight(0xffffff,0x556644,.9);sc.add(hemi);const sun=new THREE.DirectionalLight(0xfff0cc,.8);sun.position.set(30,50,20);sc.add(sun);
+const M=(c,o)=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.7,metalness:.1},o||{}));
+const gr=new THREE.Mesh(new THREE.PlaneGeometry(300,300),M(0x4f7a3a));gr.rotation.x=-Math.PI/2;sc.add(gr);
+const boxes=[];for(let i=0;i<28;i++){const s=1.5+R()*2.5,h=s<2.4?s:1.2,m=new THREE.Mesh(new THREE.BoxGeometry(s,h,s),M(i%3?0x8a6a3a:0x6b6f55));let x=(R()-.5)*90,z=(R()-.5)*90;if(Math.hypot(x,z)<8){x+=14;}m.position.set(x,h/2,z);sc.add(m);boxes.push({x,z,s,h,m});}
+const trees=[];for(let i=0;i<30;i++){const t=new THREE.Group(),k=new THREE.Mesh(new THREE.CylinderGeometry(.25,.35,3),M(0x5a3a1a));k.position.y=1.5;const l=new THREE.Mesh(new THREE.ConeGeometry(1.6,4,8),M(0x1f5a2a));l.position.y=4.5;t.add(k,l);t.position.set((R()-.5)*160,0,(R()-.5)*160);if(Math.hypot(t.position.x,t.position.z)>12){sc.add(t);trees.push(t)}}
+// السلاح
+const gun=new THREE.Group(),mt=M(0x2a2d33,{metalness:.8,roughness:.3});
+[[.07,.09,.55,0,0,-.2],[.05,.05,.3,0,.005,-.6],[.06,.1,.12,0,-.1,-.05,.25],[.08,.04,.14,0,.07,-.15]].forEach(a=>{const m=new THREE.Mesh(new THREE.BoxGeometry(a[0],a[1],a[2]),mt);m.position.set(a[3],a[4],a[5]);m.rotation.x=a[6]||0;gun.add(m)});
+const dot=new THREE.Mesh(new THREE.SphereGeometry(.012),new THREE.MeshBasicMaterial({color:0xff2222}));dot.position.set(0,.1,-.15);gun.add(dot);
+const fl=new THREE.PointLight(0xffaa33,0,8);fl.position.set(0,0,-.9);gun.add(fl);const GP=new THREE.Vector3(.2,-.2,-.4);gun.position.copy(GP);cam.add(gun);
+let cw=0,mg=[30,4,5,40],unl=[1,0,0,0];
+const WP=[{n:'بندقية هجومية',mag:30,rate:.1,dmg:1,pel:1,sp:.004,rl:1.3,f:180,kick:.07,sy:.1},{n:'بندقية خرطوش',mag:4,rate:.85,dmg:1,pel:8,sp:.09,rl:2,f:110,kick:.2,sy:.05},{n:'قنّاصة',mag:5,rate:1.2,dmg:3,pel:1,sp:0,rl:2.2,f:90,kick:.25,sy:.1},{n:'رشاش خفيف',mag:40,rate:.065,dmg:.6,pel:1,sp:.014,rl:1.5,f:260,kick:.04,sy:.07}];
+const rifle=new THREE.Group();gun.children.slice().forEach(c=>{if(c!==fl){gun.remove(c);rifle.add(c)}});const wm=[rifle];
+const wood=M(0x7a4a22,{roughness:.6}),gb=(g,w,h,d,x,y,z,m,rx)=>{const k=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m||mt);k.position.set(x,y,z);if(rx)k.rotation.x=rx;g.add(k);return k},cy=(g,r,l,x,y,z,m)=>{const k=new THREE.Mesh(new THREE.CylinderGeometry(r,r,l,12),m||mt);k.rotation.x=1.5708;k.position.set(x,y,z);g.add(k);return k};
+const sg=new THREE.Group();gb(sg,.07,.09,.4,0,0,-.1,wood);cy(sg,.025,.8,0,.03,-.45);cy(sg,.03,.3,0,-.02,-.4);gb(sg,.07,.06,.2,0,-.05,-.4,wood);for(let i=0;i<4;i++)gb(sg,.02,.05,.04,.045,0,-.02-i*.045,M(0xcc2222));
+const sn=new THREE.Group();gb(sn,.06,.09,.6,0,0,-.2);cy(sn,.02,1,0,.02,-.7);cy(sn,.045,.35,0,.1,-.2);cy(sn,.04,.01,0,.1,-.38,M(0x3355aa,{emissive:0x113366}));gb(sn,.01,.12,.01,-.03,-.08,-.85,0,.4);gb(sn,.01,.12,.01,.03,-.08,-.85,0,.4);
+const sm=new THREE.Group();gb(sm,.07,.09,.4,0,0,-.15);cy(sm,.03,.4,0,.01,-.5);gb(sm,.06,.14,.07,0,-.12,-.05,0,.2);const dt2=new THREE.Mesh(new THREE.SphereGeometry(.015),new THREE.MeshBasicMaterial({color:0xff2222}));dt2.position.set(0,.07,-.1);sm.add(dt2);
+[sg,sn,sm].forEach(g=>{g.visible=false;gun.add(g);wm.push(g)});gun.add(rifle);
+function sw(i){if(!unl[i])return;cw=i;ammo=mg[i];rl=0;wm.forEach((g,j)=>g.visible=j==i);ui()}
+// شخصيات
+function fig(body,skin,mask,arms){const g=new THREE.Group(),b=new THREE.Mesh(new THREE.CylinderGeometry(.3,.35,1,10),M(body)),h=new THREE.Mesh(new THREE.SphereGeometry(.22,14,10),M(mask?0x111111:skin));b.position.y=1.1;h.position.y=1.85;h.userData.head=1;
+const lg=new THREE.Mesh(new THREE.BoxGeometry(.5,.7,.25),M(0x333344));lg.position.y=.35;g.add(b,h,lg);
+if(mask){const e=new THREE.Mesh(new THREE.BoxGeometry(.38,.1,.1),new THREE.MeshBasicMaterial({color:0xff2222}));e.position.set(0,1.88,-.2);g.add(e);}
+else for(const s of[-1,1]){const a=new THREE.Mesh(new THREE.BoxGeometry(.12,.5,.12),M(skin));a.position.set(s*.45,arms?1.6:1.1,0);g.add(a);}
+g.traverse(o=>{if(o.isMesh)o.userData.g=g});return g}
+function label(t,col){const c=document.createElement('canvas');c.width=256;c.height=96;const x=c.getContext('2d');x.fillStyle='#000c';x.fillRect(0,0,256,96);x.strokeStyle=col;x.lineWidth=6;x.strokeRect(3,3,250,90);x.fillStyle='#fff';x.font='bold 46px Cairo,Tahoma';x.textAlign='center';x.fillText(t,128,64);const s=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),depthTest:false}));s.scale.set(2.6,1,1);return s}
+// حالة اللعبة
+let st='menu',hp=100,ar=0,ammo=30,rl=0,cd=0,q=0,good=0,kills=0,heads=0,pts=0,ph='fight',tm=0,en=[],tg=[],bl=[],mute=false,fire=false,aim=false,lock=0,vy=0,yaw=0,pit=0,fall=0,keys={},ground=true,shake=0,qd=null,ti=0;
+const P=cam.position;P.set(0,40,0);
+const ac=new (window.AudioContext||window.webkitAudioContext)();function snd(f,d,t,v){if(mute)return;try{const o=ac.createOscillator(),g=ac.createGain();o.type=t||'square';o.frequency.value=f;g.gain.value=v||.05;o.connect(g);g.connect(ac.destination);o.frequency.exponentialRampToValueAtTime(f/3,ac.currentTime+d);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+d);o.start();o.stop(ac.currentTime+d)}catch(e){}}
+function say(t,c){const m=$('msg');m.textContent=t;m.style.color=c||'#fff';clearTimeout(m.t);m.t=setTimeout(()=>m.textContent='',3200)}
+function ui(){$('hb').style.width=Math.max(0,hp*1.2)+'px';$('ab').style.width=ar*.6+'px';$('sc').textContent='✔ '+A(good)+' · ☠ '+A(kills)+' · 🎯 '+A(heads)+' · '+A(pts)+' نقطة';$('am').textContent=WP[cw].n+' · '+(rl>0?'تلقيم…':A(mg[cw])+' / ∞')}
+function hurt(d){if(ar>0){const a=Math.min(ar,d*.6);ar-=a;d-=a}hp-=d;$('dm').style.opacity=.8;setTimeout(()=>$('dm').style.opacity=0,200);snd(90,.2,'sawtooth',.08);shake=.25;if(hp<=0)finish(true)}
+function spawnEn(n){for(let i=0;i<n;i++){const a=R()*6.28,e=fig(0x222a26,0,1);e.position.set(P.x+Math.cos(a)*(22+R()*8),0,P.z+Math.sin(a)*(22+R()*8));e.userData.hp=3;e.userData.f=1+R()*2;sc.add(e);en.push(e)}}
+function clearT(){tg.forEach(t=>sc.remove(t));tg=[]}
+function startWave(){ph='fight';clearT();spawnEn(2+LV+Math.floor(q/3));say('الموجة '+A(q+1)+' — اقضِ على الأعداء!');$('qt').textContent='الموجة '+A(q+1)+' من '+A(QS.length)}
+function showQ(){ph='quest';const Q=QS[q],ty=q%5;qd=Q;const col=['#ffd24a','#f55','#4f8','#4cf','#8f8'][ty];say('مهمة '+TY[ty]+'!',col);tm=Q.t=TL;
+const ops=Q[1].map((t,i)=>({t,ok:i==0})).sort(()=>R()-.5);ops.forEach((o,i)=>{const a=P.clone();const ang=yaw+(i-(ops.length-1)/2)*.7,d=10;let g;
+if(ty==0||ty==4)g=fig(ty?0x2a5ccc:[0xcc6633,0x3399aa,0x996699][i],[0xe8b894,0x8d5a3a,0xf1c9a5][i],0,ty==0);
+else{g=new THREE.Group();const m=new THREE.Mesh(ty==1?new THREE.CylinderGeometry(.5,.5,1.2,14):new THREE.BoxGeometry(.9,.8,.9),M(ty==1?0xcc2222:ty==2?0xffffff:0x3a6a3a,{emissive:ty==2?0x333333:0x000000}));m.position.y=.7;g.add(m);m.userData.g=g}
+g.position.set(P.x-Math.sin(ang)*d,0,P.z-Math.cos(ang)*d);g.userData.o=o;g.userData.ty=ty;const s=label(o.t,col);s.position.y=2.6;g.add(s);const ring=new THREE.Mesh(new THREE.RingGeometry(.9,1.1,24),new THREE.MeshBasicMaterial({color:col,side:2}));ring.rotation.x=-Math.PI/2;ring.position.y=.05;g.add(ring);const pl=new THREE.Mesh(new THREE.CylinderGeometry(.1,.1,40,6),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.35}));pl.position.y=20;g.add(pl);sc.add(g);tg.push(g)})}
+function answer(ok,why){if(ph!='quest')return;ph='fb';const ty=q%5;clearT();
+if(ok){good++;pts+=100;snd(660,.3,'sine',.08);say('✔ صحيح! '+QS[q][1][0]+' — '+why,'#6f6');if(ty==2)hp=Math.min(100,hp+40);if(ty==3){ar=Math.min(100,ar+50);const nw=[1,2,3].find(k=>!unl[k]);if(nw){unl[nw]=1;sw(nw);setTimeout(()=>say('🔓 سلاح جديد: '+WP[nw].n+' — اضغط ١–٤ للتبديل','#ffd24a'),1800)}}}
+else{snd(120,.5,'sawtooth',.08);say('✘ خطأ — الصحيح: '+QS[q][1][0]+' — '+why,'#f66');if(ty==2)hurt(20);else if(ty==3){hurt(25)}else if(ty==0)hurt(15);spawnEn(2)}
+ui();setTimeout(()=>{if(st!='play')return;q++;if(q>=QS.length)finish(false);else startWave()},3500)}
+function finish(lost){if(st=='end')return;st='end';document.exitPointerLock();$('hud').classList.add('hide');$('end').classList.remove('hide');const r=good/QS.length,s=r>=.9?3:r>=.7?2:r>=.5?1:0;
+$('et').textContent=lost?'💀 خسرت المعركة':(s?'🏆 '+'⭐'.repeat(s):'انتهت المرحلة');$('ep').innerHTML='الإجابات الصحيحة: '+A(good)+' من '+A(QS.length)+'<br>الأعداء: '+A(kills)+' · طلقات الرأس: '+A(heads)+'<br>النقاط: '+A(pts)+' · الصحة: '+A(Math.max(0,Math.round(hp)))+(s?'<br>تم فتح المرحلة التالية':'<br>تحتاج نصف الإجابات الصحيحة على الأقل');if(!lost&&s){PR.s[cs]=Math.max(PR.s[cs]||0,s);PR.u=Math.max(PR.u,cs+1);try{localStorage.setItem('bg3dp',JSON.stringify(PR))}catch(e){}}$('nx').classList.toggle('hide',lost||!s||cs>=19);}
+// التحكم
+const ray=new THREE.Raycaster();
+function shoot(){if(cd>0||rl>0||ph=='fb')return;const W=WP[cw];if(mg[cw]<=0){reload();return}mg[cw]--;ammo=mg[cw];cd=W.rate;snd(W.f,.14,'square',.08);fl.intensity=3;setTimeout(()=>fl.intensity=0,40);gun.position.z+=W.kick;pit+=W.kick*.1;for(let pi=0;pi<W.pel;pi++)hit(W);if(ph=='fight'&&!en.length)showQ();ui()}
+function hit(W){
+const sa=W.sp*(aim?.4:1);ray.setFromCamera({x:(R()-.5)*sa,y:(R()-.5)*sa},cam);const objs=[];en.forEach(e=>objs.push(e));tg.forEach(t=>objs.push(t));const h=ray.intersectObjects(objs,true).filter(i=>i.object.type=='Mesh'||i.object.type=='Sprite');
+if(h.length){let o=h[0].object,g=o;while(g.parent&&g.parent!==sc)g=g.parent;
+if(en.includes(g)){const hd=o.userData.head;g.userData.hp-=W.dmg*(hd?2:1);if(hd)heads++;g.userData.fl=.1;if(g.userData.hp<=0){sc.remove(g);en.splice(en.indexOf(g),1);kills++;pts+=hd?30:10;snd(300,.3,'sawtooth',.06)}}
+else if(tg.includes(g)&&ph=='quest'){answer(g.userData.o.ok,QS[q][2])}}}
+function pick(){if(ph!='quest'||st!='play')return;if(q%5<2){say('أصب الهدف بالرصاص لاختياره','#ffd24a');return}let b=null,bd=1e9;tg.forEach(t=>{const d=Math.hypot(t.position.x-P.x,t.position.z-P.z);if(d<bd){bd=d;b=t}});if(b&&bd<6)answer(b.userData.o.ok,QS[q][2]);else say('اقترب من الهدف أكثر ثم اضغط E','#ffd24a')}
+function reload(){const W=WP[cw];if(rl>0||mg[cw]==W.mag)return;rl=W.rl;snd(400,.2,'square',.04)}
+onkeydown=e=>{keys[e.code]=1;if(e.code=='KeyR')reload();if(e.code=='KeyE')pick();if(e.code>='Digit1'&&e.code<='Digit4')sw(+e.code[5]-1);if(e.code=='KeyP'&&st=='play')document.exitPointerLock()};onkeyup=e=>keys[e.code]=0;
+onmousedown=e=>{if(st!='play')return;if(e.button==0)fire=true;if(e.button==2)aim=true};onmouseup=e=>{fire=false;aim=false};oncontextmenu=e=>e.preventDefault();
+onmousemove=e=>{if(document.pointerLockElement){const k=aim?.0012:.0022;yaw-=e.movementX*k;pit=Math.max(-1.4,Math.min(1.4,pit-e.movementY*k))}};
+function begin(n){cs=n||0;$('menu').classList.add('hide');$('end').classList.add('hide');$('pause').classList.add('hide');$('rh').textContent='المرحلة '+A(cs+1)+': '+STG[cs][1];$('rl').innerHTML='<b>'+LVN[STG[cs][0]]+'</b><br><br>📖 <b>القاعدة:</b> '+RL[cs]+'<br><br>'+MIS;$('rule').classList.remove('hide')}
+function go(){LV=STG[cs][0]+1;QS=STG[cs][2];TL=24-LV*2;ES=1.6+LV*.4;env();bl.forEach(b=>sc.remove(b));bl=[];$('end').classList.add('hide');$('menu').classList.add('hide');$('hud').classList.remove('hide');st='play';ac.resume();hp=100;ar=0;mg=[30,4,5,40];unl=TCH?[1,1,1,1]:[1,0,0,0];sw(0);q=0;good=0;kills=0;heads=0;pts=0;P.set(0,40,0);fall=1;en.forEach(e=>sc.remove(e));en=[];clearT();ph='fight';if(!('ontouchstart' in window))rd.domElement.requestPointerLock();else{$('tc').classList.remove('hide')}say('الإنزال بالمظلة…');setTimeout(startWave,3500);ui()}
+$('go').onclick=()=>begin(0);$('rgo').onclick=()=>{$('rule').classList.add('hide');go()};$('nx').onclick=()=>begin(cs+1);$('rt').onclick=()=>begin(cs);$('tcm').onclick=()=>{TCH=!TCH;grid()};grid();$('res').onclick=()=>{$('pause').classList.add('hide');st='play';rd.domElement.requestPointerLock()};$('rs').onclick=()=>{$('pause').classList.add('hide');begin(cs)};$('snd').onclick=e=>{mute=!mute;e.target.textContent='الصوت: '+(mute?'متوقف':'يعمل')};
+document.addEventListener('pointerlockchange',()=>{if(!document.pointerLockElement&&st=='play'&&!('ontouchstart' in window)){st='pause';$('pause').classList.remove('hide')}});
+// لمس
+let jo=null,lo=null,fo=null;const T=$('tc');T.addEventListener('touchstart',e=>{for(const t of e.changedTouches){const id=t.target.id;if(id=='fb'){fire=true;fo={id:t.identifier,x:t.clientX,y:t.clientY}}else if(id=='jb')keys.Space=1;else if(id=='rb')reload();else if(id=='wb'){let k=cw;do{k=(k+1)%4}while(!unl[k]);sw(k)}else if(id=='ab2')aim=!aim;else if(id=='pk')pick();else if(t.clientX<innerWidth/2)jo={id:t.identifier,x:t.clientX,y:t.clientY};else lo={id:t.identifier,x:t.clientX,y:t.clientY}}});
+T.addEventListener('touchmove',e=>{for(const t of e.changedTouches){if(jo&&t.identifier==jo.id){keys.KeyA=t.clientX-jo.x<-20;keys.KeyD=t.clientX-jo.x>20;keys.KeyW=t.clientY-jo.y<-20;keys.KeyS=t.clientY-jo.y>20}if(lo&&t.identifier==lo.id){yaw-=(t.clientX-lo.x)*.006;pit=Math.max(-1.4,Math.min(1.4,pit-(t.clientY-lo.y)*.006));lo.x=t.clientX;lo.y=t.clientY}if(fo&&t.identifier==fo.id){yaw-=(t.clientX-fo.x)*.006;pit=Math.max(-1.4,Math.min(1.4,pit-(t.clientY-fo.y)*.006));fo.x=t.clientX;fo.y=t.clientY}}});
+T.addEventListener('touchend',e=>{fire=false;keys.Space=0;for(const t of e.changedTouches){if(jo&&t.identifier==jo.id){jo=null;keys.KeyA=keys.KeyD=keys.KeyW=keys.KeyS=0}if(lo&&t.identifier==lo.id)lo=null;if(fo&&t.identifier==fo.id)fo=null}});
+onresize=()=>{rd.setSize(innerWidth,innerHeight);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix()};
+// الحلقة
+const props=new THREE.Group();sc.add(props);
+const snow=new THREE.Points((()=>{const g=new THREE.BufferGeometry(),a=new Float32Array(1800);for(let i=0;i<1800;i+=3){a[i]=(R()-.5)*60;a[i+1]=R()*25;a[i+2]=(R()-.5)*60}g.setAttribute('position',new THREE.BufferAttribute(a,3));return g})(),new THREE.PointsMaterial({color:0xffffff,size:.18}));snow.visible=false;snow.frustumCulled=false;sc.add(snow);
+function bx(w,h,d,c,x,y,z,o){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),M(c,o));m.position.set(x,y,z);props.add(m);return m}
+function at(a,b){const t=R()*6.28,r=a+R()*(b-a);return[Math.cos(t)*r,Math.sin(t)*r]}
+function col(x,z,s,h){boxes.push({x,z,s,h,p:1})}
+function tent(x,z,c){const m=new THREE.Mesh(new THREE.ConeGeometry(2.2,2.4,4),M(c));m.position.set(x,1.2,z);m.rotation.y=.78;props.add(m);col(x,z,2.4,2)}
+function tower(x,z,c,rf){for(const a of[-1,1])for(const b of[-1,1])bx(.2,5,.2,c,x+a,2.5,z+b);bx(2.8,.3,2.8,c,x,5,z);bx(2.2,1.4,2.2,rf,x,5.9,z);col(x,z,2.8,5)}
+function car(x,z,c,r){const g=new THREE.Group(),b=new THREE.Mesh(new THREE.BoxGeometry(2,.7,4),M(c)),t=new THREE.Mesh(new THREE.BoxGeometry(1.7,.6,2),M(0x223344));b.position.y=.7;t.position.set(0,1.3,-.2);g.add(b,t);for(const a of[-1,1])for(const q of[-1.3,1.3]){const w=new THREE.Mesh(new THREE.CylinderGeometry(.35,.35,.3,10),M(0x111111));w.rotation.z=1.57;w.position.set(a,.35,q);g.add(w)}g.position.set(x,0,z);g.rotation.y=r;props.add(g)}
+function building(x,z,h,c){const s=4+R()*3;bx(s,h,s,c,x,h/2,z);for(let y=2;y<h-1;y+=2.2)for(const a of[-1,1])bx(s+.05,.8,.8,0x1a2630,x,y,z+a*s*.25);col(x,z,s,h)}
+function palm(x,z){const t=new THREE.Mesh(new THREE.CylinderGeometry(.2,.3,5,6),M(0x8a6a3a));t.position.set(x,2.5,z);props.add(t);for(let i=0;i<6;i++){const l=new THREE.Mesh(new THREE.BoxGeometry(.4,.05,3),M(0x2f7a3a));l.position.set(x,5,z);l.rotation.set(.4,i*1.05,0,'YXZ');l.translateZ(-1.4);props.add(l)}}
+function rock(x,z,c){const r=new THREE.Mesh(new THREE.DodecahedronGeometry(1+R()*1.5),M(c));r.position.set(x,.5,z);r.scale.y=.7;props.add(r)}
+function buildProps(){
+for(let i=boxes.length-1;i>=0;i--)if(boxes[i].p)boxes.splice(i,1);
+while(props.children.length)props.remove(props.children[0]);
+const BC=[[0x8a6a3a,0x6b6f55],[0x6a6f74,0x8a8f94],[0xc9a15a,0xa8844a],[0x6f6a64,0x59544e],[0x4a3a2a,0x3a4a3a],[0xbfd8ea,0x9ec0d8]][LV-1];
+boxes.forEach((b,i)=>{if(b.m)b.m.material.color.setHex(BC[i%2])});
+const TC=[0x1f5a2a,0,0,0,0x0f3a1a,0xdfeaf5][LV-1];
+trees.forEach(t=>{t.visible=!!TC;if(TC)t.children[1].material.color.setHex(TC)});
+snow.visible=LV==6;
+const n=(k,f)=>{for(let i=0;i<k;i++)f(...at(10,60))},pk=a=>a[R()*a.length|0];
+const MC=[0x6a8a5a,0x707880,0xb08a5a,0x5a4a44,0x2a3a30,0xdfeaf5][LV-1];
+for(let i=0;i<12;i++){const a=i*.52+R()*.2,h=22+R()*22,r=16+R()*10,m=new THREE.Mesh(new THREE.ConeGeometry(r,h,6),M(MC));m.position.set(Math.cos(a)*100,h/2-1,Math.sin(a)*100);props.add(m);if(LV!=2&&LV!=3){const c=new THREE.Mesh(new THREE.ConeGeometry(r*.38,h*.34,6),M(0xffffff));c.position.set(m.position.x,h*.83-1,m.position.z);props.add(c)}}
+if(LV==1){n(6,(x,z)=>tent(x,z,pk([0x4a5a2a,0x6b5a3a])));n(3,(x,z)=>tower(x,z,0x6b4a2a,0x3a2a1a));n(8,(x,z)=>{for(let i=0;i<3;i++)bx(2.4,.5,.8,0xb59a6a,x,.25+i*.5,z).rotation.y=z})}
+if(LV==2){n(10,(x,z)=>building(x,z,8+R()*14,pk([0x7a7f85,0x8a7a6a,0x5a636b])));n(8,(x,z)=>car(x,z,pk([0xaa3322,0x2255aa,0xdddddd,0x222222]),R()*6));n(6,(x,z)=>{bx(2.4,2.6,6,pk([0xb04a2a,0x2a6ab0,0x4a8a4a]),x,1.3,z);col(x,z,4,2.6)})}
+if(LV==3){n(14,palm);n(8,(x,z)=>rock(x,z,0xb59560));n(5,(x,z)=>{const d=new THREE.Mesh(new THREE.SphereGeometry(9,14,8),M(0xd9b06a));d.scale.set(1,.22,1.5);d.position.set(x*1.3,0,z*1.3);props.add(d)});n(6,(x,z)=>{const h=1.5+R()*4,c=new THREE.Mesh(new THREE.CylinderGeometry(.5,.55,h,10),M(0xcdbb95));c.position.set(x,h/2,z);props.add(c)})}
+if(LV==4){n(8,(x,z)=>{const g=new THREE.Group(),w=new THREE.Mesh(new THREE.BoxGeometry(7,3,.9),M(0x7a7d82));w.position.y=1.5;g.add(w);for(let i=-3;i<=3;i+=2){const m=new THREE.Mesh(new THREE.BoxGeometry(.8,.8,.9),M(0x7a7d82));m.position.set(i,3.4,0);g.add(m)}g.position.set(x,0,z);g.rotation.y=R()*3;props.add(g)});n(4,(x,z)=>{const c=new THREE.Mesh(new THREE.CylinderGeometry(1.6,1.8,7,12),M(0x8a8d92)),k=new THREE.Mesh(new THREE.ConeGeometry(2.1,2.5,12),M(0x7a2a22));c.position.set(x,3.5,z);k.position.set(x,8.2,z);props.add(c,k);col(x,z,3.2,7)});let tl=0;n(8,(x,z)=>{bx(.12,2.2,.12,0x5a3a1a,x,1.1,z);const f=new THREE.Mesh(new THREE.SphereGeometry(.22,8,6),new THREE.MeshBasicMaterial({color:0xffaa33}));f.position.set(x,2.4,z);props.add(f);if(tl++<4){const l=new THREE.PointLight(0xff8833,1.4,16);l.position.set(x,2.6,z);props.add(l)}})}
+if(LV==5){n(5,(x,z)=>{bx(3,2,3,0x7a5a3a,x,1,z);const r=new THREE.Mesh(new THREE.ConeGeometry(2.6,1.8,4),M(0x4a3a1a));r.position.set(x,2.9,z);r.rotation.y=.78;props.add(r);col(x,z,3,2)});n(10,(x,z)=>rock(x,z,0x4a4f46))}
+if(LV==6){n(14,(x,z)=>{const i=new THREE.Mesh(new THREE.OctahedronGeometry(1+R()*1.6),M(0xbfe6ff,{transparent:true,opacity:.8,metalness:.3}));i.position.set(x,1,z);i.scale.y=1.4;props.add(i)});n(6,(x,z)=>rock(x,z,0xe8eef5))}
+}
+const clk=new THREE.Clock();let bob=0;
+function loop(){requestAnimationFrame(loop);const dt=Math.min(clk.getDelta(),.05);
+if(st=='play'){
+if(fall){P.y-=dt*(P.y>8?9:6);if(P.y<=1.7){P.y=1.7;fall=0}}
+else{const sp=(keys.ShiftLeft?9:5.5)*(keys.KeyC?.5:1)*(aim?.6:1),f=(keys.KeyW?1:0)-(keys.KeyS?1:0),s=(keys.KeyD?1:0)-(keys.KeyA?1:0);
+P.x+=(-Math.sin(yaw)*f+Math.cos(yaw)*s)*sp*dt;P.z+=(-Math.cos(yaw)*f-Math.sin(yaw)*s)*sp*dt;P.x=Math.max(-70,Math.min(70,P.x));P.z=Math.max(-70,Math.min(70,P.z));
+const eye=keys.KeyC?1.0:1.7;let fl=0,foot=P.y-eye;
+boxes.forEach(b=>{const dx=P.x-b.x,dz=P.z-b.z,r=b.s/2+.4;if(Math.abs(dx)<r&&Math.abs(dz)<r){if(foot>=b.h-.3)fl=Math.max(fl,b.h);else if(Math.abs(dx)>Math.abs(dz))P.x=b.x+Math.sign(dx)*r;else P.z=b.z+Math.sign(dz)*r}});
+if(keys.Space&&ground){vy=7;ground=false}vy-=20*dt;let ny=foot+vy*dt;if(ny<=fl){ny=fl;vy=0;ground=true}else ground=false;P.y=ny+eye;
+if(f||s){bob+=dt*(keys.ShiftLeft?14:9)}}
+cam.rotation.set(pit,yaw,0,'YXZ');const tf=aim?(cw==2?18:45):75;$('scope').classList.toggle('hide',!(aim&&cw==2&&st=='play'));gun.visible=!(aim&&cw==2);cam.fov+=(tf-cam.fov)*.2;cam.updateProjectionMatrix();
+if(shake>0){shake-=dt;cam.rotation.z=(R()-.5)*shake*.2}
+gun.position.x=(aim?0:GP.x)+Math.sin(bob)*.01;gun.position.y=(aim?-WP[cw].sy:GP.y)+Math.abs(Math.cos(bob))*(aim?.002:.008);gun.position.z+=((rl>0?GP.z+.1:GP.z)-gun.position.z)*.3;gun.rotation.x=rl>0?-.7:0;
+cd-=dt;if(rl>0){rl-=dt;if(rl<=0){mg[cw]=WP[cw].mag;ammo=mg[cw];ui()}}if(fire)shoot();
+// أعداء
+en.forEach(e=>{const dx=P.x-e.position.x,dz=P.z-e.position.z,d=Math.hypot(dx,dz);e.rotation.y=Math.atan2(dx,dz)+Math.PI;if(d>12){e.position.x+=dx/d*ES*dt;e.position.z+=dz/d*ES*dt}
+e.userData.f-=dt;if(e.userData.f<=0&&d<40){e.userData.f=1.8+R()*1.5;const b=new THREE.Mesh(new THREE.SphereGeometry(.12),new THREE.MeshBasicMaterial({color:0xff5522}));b.position.set(e.position.x,1.5,e.position.z);const v=new THREE.Vector3(P.x-b.position.x,P.y-1.5-.2,P.z-b.position.z).normalize().multiplyScalar(14);b.userData.v=v;b.userData.l=4;sc.add(b);bl.push(b);snd(240,.15,'square',.03)}
+if(e.userData.fl>0){e.userData.fl-=dt;e.children[0].material.emissive.setHex(0xff0000)}else e.children[0].material.emissive.setHex(0)});
+for(let i=bl.length-1;i>=0;i--){const b=bl[i];b.position.addScaledVector(b.userData.v,dt);b.userData.l-=dt;if(b.position.distanceTo(P)<.7){hurt(8);b.userData.l=0}if(b.userData.l<=0){sc.remove(b);bl.splice(i,1)}}
+tg.forEach(t=>t.rotation.y+=0);
+// مؤقت السؤال
+if(ph=='quest'){tm-=dt;$('qt').textContent=QS[q][0]+' ⏱ '+A(Math.ceil(tm));$('bar').style.width=Math.max(0,tm/TL*100)+'%';if(tm<=0)answer(false,'انتهى الوقت. '+QS[q][2])}
+if(ph=='fb')$('bar').style.width='0%';
+// مؤشر
+ray.setFromCamera({x:0,y:0},cam);const hh=ray.intersectObjects(en,true);$('cross').className=hh.length?'r':'';const cz=(aim?16:keys.KeyC?22:(keys.KeyW||keys.KeyA||keys.KeyS||keys.KeyD)?40:28)+(ground?0:14),cx=$('cross').style;cx.width=cx.height=cz+'px';cx.margin=(-cz/2)+'px';const nr=ph=='quest'&&q%5>1&&tg.some(t=>Math.hypot(t.position.x-P.x,t.position.z-P.z)<6);$('pk').classList.toggle('hide',!nr);
+if(hp<100&&ph=='fight'&&false)hp+=0;ti+=dt;if(ti>.5){ti=0;ui()}}
+if(snow.visible){const a=snow.geometry.attributes.position;for(let i=1;i<a.array.length;i+=3){a.array[i]-=dt*2.5;if(a.array[i]<0)a.array[i]=25}a.needsUpdate=true;snow.position.set(P.x,0,P.z)}rd.render(sc,cam)}
+loop();
+</script></body></html>
